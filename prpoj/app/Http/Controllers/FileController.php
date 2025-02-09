@@ -15,12 +15,12 @@ class FileController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'file' => 'required|file|mimes:jpg,png,pdf,docx|max:5120',
+            'file' => 'required|file|mimes:jpg,png,jpeg,gif,bmp,tiff,ai,cdr,svg,wmf,emf|max:5120',
             'comment' => 'nullable|string|max:255',
             'delete_at' => 'nullable|date|after:today',
         ]);
 
-        // завантаження зі шляху користувача
+        // завантаження  файлу зі шляху користувача
         $filePath = $request->file('file')->store('files', 'public');
 
 
@@ -32,5 +32,14 @@ class FileController extends Controller
         ]);
 
         return redirect()->route('files.index');
+    }
+    public function index()
+    {
+        $files = File::where('user_id', auth()->id())
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+
+        return view('files.index', compact('files'));
     }
 }
