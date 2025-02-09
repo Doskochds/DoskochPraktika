@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\File;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class FileController extends Controller
 {
@@ -41,5 +42,24 @@ class FileController extends Controller
 
 
         return view('files.index', compact('files'));
+    }
+    public function show($id)
+    {
+        $file = File::where('id', $id)->where('user_id', auth()->id())->firstOrFail();
+        
+        return view('files.show', compact('file'));
+    }
+
+    public function destroy($id)
+    {
+        $file = File::where('id', $id)->where('user_id', auth()->id())->firstOrFail();
+
+
+        Storage::disk('public')->delete($file->file_name);
+
+
+        $file->delete();
+
+        return redirect()->route('files.index')->with('success', 'Файл успішно видалено');
     }
 }
