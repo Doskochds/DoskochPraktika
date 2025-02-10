@@ -62,4 +62,14 @@ class FileController extends Controller
 
         return redirect()->route('files.index')->with('success', 'Файл успішно видалено');
     }
+    public function view($id)
+    {
+        $file = File::findOrFail($id);
+
+
+        $file->increment('views');
+
+
+        return response()->file(storage_path("app/public/{$file->file_name}"));
+    }
 }

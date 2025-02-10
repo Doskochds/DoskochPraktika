@@ -9,20 +9,17 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
+    public function up()
     {
         Schema::table('files', function (Blueprint $table) {
-            //
+            $table->unsignedInteger('views')->default(0);
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
+    public function down()
     {
         Schema::table('files', function (Blueprint $table) {
-            //
+            $table->dropColumn('views');
         });
     }
 };

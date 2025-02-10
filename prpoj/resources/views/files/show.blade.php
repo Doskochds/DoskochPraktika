@@ -27,6 +27,8 @@
         @method('DELETE')
         <button type="submit">Видалити файл</button>
     </form>
+    <p>Посилання на файл: <a href="{{ route('files.view', $file->id) }}" target="_blank">{{ route('files.view', $file->id) }}</a></p>
+    <p>Кількість переглядів: {{ $file->views }}</p>
 
     <a href="{{ route('files.index') }}">Назад до списку</a>
 @endsection
