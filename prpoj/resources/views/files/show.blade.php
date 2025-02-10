@@ -21,7 +21,7 @@
         <p><strong>Дата видалення:</strong> {{ $file->delete_at }}</p>
     @endif
 
-    <!-- Кнопка видалення файлу -->
+
     <form action="{{ route('files.destroy', $file->id) }}" method="POST" onsubmit="return confirm('Ви впевнені?');">
         @csrf
         @method('DELETE')

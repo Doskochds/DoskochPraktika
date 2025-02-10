@@ -46,7 +46,7 @@ class FileController extends Controller
     public function show($id)
     {
         $file = File::where('id', $id)->where('user_id', auth()->id())->firstOrFail();
-        
+
         return view('files.show', compact('file'));
     }
 
