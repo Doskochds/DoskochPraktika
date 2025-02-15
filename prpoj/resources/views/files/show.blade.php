@@ -7,7 +7,7 @@
 
     @php
         $imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg', 'webp'];
-        $fileExtension = strtolower(pathinfo($file->file_name, PATHINFO_EXTENSION));
+        $fileExtension = isset($file) ? strtolower(pathinfo($file->file_name, PATHINFO_EXTENSION)) : null;
     @endphp
 
     @if(in_array($fileExtension, $imageExtensions))
