@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\OneTimeLinkController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {

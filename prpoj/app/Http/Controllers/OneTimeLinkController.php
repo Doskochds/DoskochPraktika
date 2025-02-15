@@ -24,7 +24,7 @@ abort(404);
 }
 
 $file = File::findOrFail($link->file_id);
-$link->delete(); // Видаляємо після першого перегляду
+$link->delete(); // Видаляєм  після першого перегляду
 
 return response()->file(Storage::disk('public')->path($file->file_name));
 }

@@ -29,6 +29,10 @@
     </form>
     <p>Посилання на файл: <a href="{{ route('files.view', $file->id) }}" target="_blank">{{ route('files.view', $file->id) }}</a></p>
     <p>Кількість переглядів: {{ $file->views }}</p>
+    <form action="{{ route('file.generate.one', ['file' => $file->id]) }}" method="POST">
+        @csrf
+        <button type="submit">Згенерувати одноразове посилання</button>
+    </form>
 
     <a href="{{ route('files.index') }}">Назад до списку</a>
 @endsection
