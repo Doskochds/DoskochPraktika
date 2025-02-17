@@ -18,6 +18,7 @@ return new class extends Migration
             $table->text('comment')->nullable();
             $table->timestamp('delete_at')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
