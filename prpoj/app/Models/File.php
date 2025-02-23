@@ -13,4 +13,8 @@ class File extends Model
     {
         return $this->belongsTo(User::class);
     }
+    public function oneTimeLinks()
+    {
+        return $this->hasMany(OneTimeLink::class, 'file_id');
+    }
 }

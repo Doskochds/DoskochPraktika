@@ -26,7 +26,9 @@ Route::middleware('auth')->group(function () {
     Route::delete('/files/{id}', [FileController::class, 'destroy'])->name('files.destroy');
 });
 Route::get('/file/{id}', [FileController::class, 'view'])->name('files.view');
+Route::delete('/file/{token}/delete', [OneTimeLinkController::class, 'deleteLink'])->name('file.delete.link');
 Route::post('/files/{file}/generate-one-time-link', [OneTimeLinkController::class, 'generate'])->name('file.generate.one');
 Route::get('/files/view/{token}', [OneTimeLinkController::class, 'view'])->name('file.view.one');
+
 
 require __DIR__.'/auth.php';
