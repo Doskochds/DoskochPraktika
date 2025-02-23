@@ -67,9 +67,6 @@ class FileController extends Controller
         $file = File::findOrFail($id);
 
 
-        $file->increment('views');
-
-
         return response()->file(storage_path("app/public/{$file->file_name}"));
     }
 }

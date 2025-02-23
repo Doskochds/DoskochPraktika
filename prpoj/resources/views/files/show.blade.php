@@ -27,7 +27,7 @@
     <p>Посилання на файл: <a href="{{ route('files.view', $file->id) }}" target="_blank">{{ route('files.view', $file->id) }}</a></p>
     <p>Кількість переглядів: {{ $file->views }}</p>
 
-    <!-- Форма для генерації одноразових посилань -->
+
     <form action="{{ route('file.generate.one', ['file' => $file->id]) }}" method="POST" class="mt-4">
         @csrf
         <div class="form-group">

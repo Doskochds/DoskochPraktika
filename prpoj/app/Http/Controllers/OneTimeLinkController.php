@@ -57,11 +57,14 @@ class OneTimeLinkController extends Controller
 
         $file = File::findOrFail($link->file_id);
 
+        $file->increment('views');
 
+
+        $link->update(['used_at' => Carbon::now()]);
         $link->delete();
 
 
-        return response()->file(Storage::disk('public')->path($file->file_name));
+        return response()->file(storage_path("app/public/{$file->file_name}"));
     }
 
 

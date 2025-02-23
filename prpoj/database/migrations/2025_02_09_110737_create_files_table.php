@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('file_name');
             $table->text('comment')->nullable();
             $table->timestamp('delete_at')->nullable();
+            $table->unsignedBigInteger('views')->default(0);
             $table->timestamps();
             $table->softDeletes();
         });
