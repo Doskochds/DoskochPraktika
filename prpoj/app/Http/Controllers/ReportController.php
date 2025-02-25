@@ -15,11 +15,13 @@ class ReportController extends Controller
         $totalFiles = File::count();
         $deletedFiles = File::onlyTrashed()->count();
         $totalLinks = OneTimeLink::count();
-        $usedLinks = OneTimeLink::whereNotNull('used_at')->count();
         $totalViews = File::sum('views');
 
 
+        $usedLinks = OneTimeLink::whereNotNull('used_at')->count();
+
         $files = File::withTrashed()->withCount('oneTimeLinks')->get();
+
 
         return view('reports.index', compact('totalFiles', 'deletedFiles', 'totalLinks', 'usedLinks', 'totalViews', 'files'));
     }

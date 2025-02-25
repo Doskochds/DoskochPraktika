@@ -12,6 +12,8 @@ return new class extends Migration {
             $table->foreignId('file_id')->constrained()->onDelete('cascade');
             $table->string('token')->unique();
             $table->timestamps();
+
+            $table->timestamp('used_at')->nullable();
         });
     }
 
@@ -20,4 +22,5 @@ return new class extends Migration {
         Schema::dropIfExists('one_time_links');
     }
 };
+
 
