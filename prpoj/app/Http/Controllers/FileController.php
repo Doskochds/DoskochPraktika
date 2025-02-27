@@ -59,6 +59,7 @@ class FileController extends Controller
 
 
         $file->delete();
+        $file->oneTimeLinks()->delete();
 
         return redirect()->route('files.index')->with('success', 'Файл успішно видалено');
     }
