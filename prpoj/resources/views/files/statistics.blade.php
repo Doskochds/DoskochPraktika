@@ -35,6 +35,10 @@
             <td>{{ $report['usedLinks'] }}</td>
         </tr>
         <tr>
+            <td><strong>Кількість невикористаних одноразових посилань</strong></td>
+            <td>{{ $report['unusedLinks'] }}</td>
+        </tr>
+        <tr>
             <td><strong>Загальна кількість переглядів файлів</strong></td>
             <td>{{ $report['totalViews'] }}</td>
         </tr>
@@ -66,6 +70,14 @@
         <tr>
             <td><strong>Кількість використаних одноразових посилань користувача</strong></td>
             <td>{{ $report['userUsedLinks'] }}</td>
+        </tr>
+        <tr>
+            <td><strong>Кількість невикористаних одноразових посилань користувача</strong></td>
+            <td>{{ $report['userUnusedLinks'] }}</td>
+        </tr>
+        <tr>
+            <td><strong>Кількість переглядів файлів користувача</strong></td>
+            <td>{{ $report['userTotalViews'] }}</td>
         </tr>
         </tbody>
     </table>
