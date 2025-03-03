@@ -60,15 +60,37 @@ class FileService
         }
     }
 
-    public function getReports()
+    public function getStatistics()
     {
+
+        $totalFiles = File::count();
+        $deletedFiles = File::onlyTrashed()->count();
+        $totalLinks = OneTimeLink::count();
+        $usedLinks = OneTimeLink::whereNotNull('used_at')->count();
+        $totalViews = File::sum('views');
+        $files = File::withTrashed()->withCount('oneTimeLinks')->get();
+
+
+        $userFiles = File::where('user_id', Auth::id())->count();
+        $userDeletedFiles = File::where('user_id', Auth::id())->onlyTrashed()->count();
+        $userLinks = OneTimeLink::whereHas('file', function ($query) {
+            $query->where('user_id', Auth::id());
+        })->count();
+        $userUsedLinks = OneTimeLink::whereHas('file', function ($query) {
+            $query->where('user_id', Auth::id());
+        })->whereNotNull('used_at')->count();
+
         return [
-            'totalFiles' => File::count(),
-            'deletedFiles' => File::onlyTrashed()->count(),
-            'totalLinks' => OneTimeLink::count(),
-            'usedLinks' => OneTimeLink::whereNotNull('used_at')->count(),
-            'totalViews' => File::sum('views'),
-            'files' => File::withTrashed()->withCount('oneTimeLinks')->get(),
+            'totalFiles' => $totalFiles,
+            'deletedFiles' => $deletedFiles,
+            'totalLinks' => $totalLinks,
+            'usedLinks' => $usedLinks,
+            'totalViews' => $totalViews,
+            'files' => $files,
+            'userFiles' => $userFiles,
+            'userDeletedFiles' => $userDeletedFiles,
+            'userLinks' => $userLinks,
+            'userUsedLinks' => $userUsedLinks,
         ];
     }
 }

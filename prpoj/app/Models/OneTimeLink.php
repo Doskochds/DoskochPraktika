@@ -8,4 +8,8 @@ class OneTimeLink extends Model
 {
 use HasFactory;
 protected $fillable = ['file_id', 'token'];
+public function file()
+{
+        return $this->belongsTo(File::class);
+}
 }

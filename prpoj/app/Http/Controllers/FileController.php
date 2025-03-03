@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\FileService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class FileController extends Controller
 {
@@ -58,5 +59,11 @@ class FileController extends Controller
         $file = $this->fileService->getFileForView($id);
 
         return response()->file($file);
+    }
+    public function statistics()
+    {
+        $report = $this->fileService->getStatistics();
+
+        return view('files.statistics', compact('report'));
     }
 }
