@@ -22,11 +22,13 @@ class FileController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        $request->validate(
+            [
             'file' => 'required|file|mimes:jpg,png,jpeg,gif,bmp,tiff,ai,cdr,svg,wmf,emf|max:5120',
             'comment' => 'nullable|string|max:255',
             'delete_at' => 'nullable|date|after:today',
-        ]);
+            ]
+        );
 
         $this->fileService->uploadFile($request);
 

@@ -37,19 +37,26 @@ class NewPasswordController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $validated = $request->validate([
+        $validated = $request->validate(
+            [
             'token' => ['required'],
             'email' => ['required', 'email'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        ]);
+            ]
+        );
 
-        return $this->authService->resetPassword($validated, function (User $user) use ($request) {// Логіка оновлення паролю користувача
-            $user->forceFill([
-                'password' => Hash::make($request->password),
-                'remember_token' => Str::random(60),
-            ])->save();
+        return $this->authService->resetPassword(
+            $validated, function (User $user) use ($request) {
+                // Логіка оновлення паролю користувача
+                $user->forceFill(
+                    [
+                    'password' => Hash::make($request->password),
+                    'remember_token' => Str::random(60),
+                    ]
+                )->save();
 
-            event(new PasswordReset($user));
-        });
+                event(new PasswordReset($user));
+            }
+        );
     }
 }

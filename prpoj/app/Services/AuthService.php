@@ -54,9 +54,11 @@ class AuthService
      */
     public function updatePassword($user, $validated): RedirectResponse
     {
-        $user->update([
+        $user->update(
+            [
             'password' => Hash::make($validated['password']),
-        ]);
+            ]
+        );
 
         return back()->with('status', 'password-updated');
     }
@@ -81,13 +83,18 @@ class AuthService
 
     public function confirmPassword($user, $password): RedirectResponse
     {
-        if (! Auth::guard('web')->validate([
+        if (! Auth::guard('web')->validate(
+            [
             'email' => $user->email,
             'password' => $password,
-        ])) {
-            throw ValidationException::withMessages([
+            ]
+        )
+        ) {
+            throw ValidationException::withMessages(
+                [
                 'password' => __('auth.password'),
-            ]);
+                ]
+            );
         }
 
         session()->put('auth.password_confirmed_at', time());
@@ -119,11 +126,13 @@ class AuthService
 
     public function register($validated): RedirectResponse
     {
-        $user = User::create([
+        $user = User::create(
+            [
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
-        ]);
+            ]
+        );
 
         event(new Registered($user));
 

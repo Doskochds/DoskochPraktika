@@ -15,12 +15,14 @@ class FileService
     {
         $filePath = $request->file('file')->store('files', 'public');
 
-        return File::create([
+        return File::create(
+            [
             'user_id' => Auth::id(),
             'file_name' => $filePath,
             'comment' => $request->input('comment'),
             'delete_at' => $request->input('delete_at'),
-        ]);
+            ]
+        );
     }
 
     public function getUserFiles()
@@ -70,13 +72,17 @@ class FileService
         $totalLinks = OneTimeLink::withTrashed()->count();
         $unusedLinks = OneTimeLink::whereNull('used_at')->count();
 
-        $userLinks = OneTimeLink::whereHas('file', function ($query) {
-            $query->where('user_id', Auth::id());
-        })->withTrashed()->count();
+        $userLinks = OneTimeLink::whereHas(
+            'file', function ($query) {
+                $query->where('user_id', Auth::id());
+            }
+        )->withTrashed()->count();
 
-        $userUnusedLinks = OneTimeLink::whereHas('file', function ($query) {
-            $query->where('user_id', Auth::id());
-        })->whereNull('used_at')->count();
+        $userUnusedLinks = OneTimeLink::whereHas(
+            'file', function ($query) {
+                $query->where('user_id', Auth::id());
+            }
+        )->whereNull('used_at')->count();
 
         $userUsedLinks = $userLinks - $userUnusedLinks;
 
@@ -106,11 +112,13 @@ class FileService
         $links = [];
         for ($i = 0; $i < $count; $i++) {
             $token = Str::random(32);
-            $link = OneTimeLink::create([
+            $link = OneTimeLink::create(
+                [
                 'file_id' => $fileId,
                 'token' => $token,
                 'created_at' => Carbon::now(),
-            ]);
+                ]
+            );
 
             $links[] = [
                 'token' => $token,

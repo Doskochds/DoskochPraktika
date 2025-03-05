@@ -30,9 +30,11 @@ class PasswordResetLinkController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $validated = $request->validate([
+        $validated = $request->validate(
+            [
             'email' => ['required', 'email'],
-        ]);
+            ]
+        );
 
         return $this->authService->sendPasswordResetLink($validated);
     }

@@ -17,10 +17,12 @@ class PasswordController extends Controller
 
     public function update(Request $request)
     {
-        $validated = $request->validateWithBag('updatePassword', [
+        $validated = $request->validateWithBag(
+            'updatePassword', [
             'current_password' => ['required', 'current_password'],
             'password' => ['required', \Illuminate\Validation\Rules\Password::defaults(), 'confirmed'],
-        ]);
+            ]
+        );
 
         return $this->authService->updatePassword($request->user(), $validated);
     }
