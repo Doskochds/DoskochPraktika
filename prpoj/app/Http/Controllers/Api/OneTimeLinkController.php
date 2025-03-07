@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
 use App\Services\FileService;
 use Illuminate\Http\Request;
 
@@ -19,28 +20,30 @@ class OneTimeLinkController extends Controller
         try {
             $count = $request->input('count', 1);
             $links = $this->fileService->generateOneTimeLinks($fileId, $count);
-            return response()->json(['urls' => $links]);
+            return response()->json(['urls' => $links], 201);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 400);
         }
     }
 
-    public function show($fileId)
-    {
-        $file = $this->fileService->getFile($fileId);
-        return view('files.show', compact('file'));
-    }
-
     public function view($token)
     {
-        $filePath = $this->fileService->getFileByToken($token);
-        return response()->file($filePath);
+        try {
+            $filePath = $this->fileService->getFileByToken($token);
+            return response()->file($filePath);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Invalid or expired token'], 404);
+        }
     }
 
     public function deleteLink($token)
     {
-        $this->fileService->deleteOneTimeLink($token);
-        return response()->json(['message' => 'Link deleted successfully']);
+        try {
+            $this->fileService->deleteOneTimeLink($token);
+            return response()->json(['message' => 'Link deleted successfully']);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 400);
+        }
     }
 
 //    public function cleanUpLinks()
