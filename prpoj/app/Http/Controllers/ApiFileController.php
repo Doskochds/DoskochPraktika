@@ -1,13 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers;
 
 use App\Services\FileService;
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
-class FileController extends Controller
+class ApiFileController extends Controller
 {
     protected FileService $fileService;
 

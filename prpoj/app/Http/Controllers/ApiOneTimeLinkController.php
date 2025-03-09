@@ -1,12 +1,11 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Services\FileService;
 use Illuminate\Http\Request;
 
-class OneTimeLinkController extends Controller
+class ApiOneTimeLinkController extends Controller
 {
     protected $fileService;
 

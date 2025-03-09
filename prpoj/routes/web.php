@@ -30,3 +30,4 @@ Route::get('/files/view/{token}', [OneTimeLinkController::class, 'view'])->name(
 Route::get('/statistics', [FileController::class, 'statistics'])->middleware(['auth'])->name('files.statistics');
 
 require __DIR__.'/auth.php';
+
