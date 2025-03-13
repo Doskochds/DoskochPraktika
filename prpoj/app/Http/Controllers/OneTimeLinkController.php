@@ -34,13 +34,17 @@ class OneTimeLinkController extends Controller
     public function view($token)
     {
         $filePath = $this->fileService->getFileByToken($token);
+        $this->fileService->deleteOneTimeLink($token);
         return response()->file($filePath);
+
+
+
     }
 
     public function deleteLink($token)
     {
         $this->fileService->deleteOneTimeLink($token);
-        return response()->json(['message' => 'Link deleted successfully']);
+
     }
 
 //    public function cleanUpLinks()
