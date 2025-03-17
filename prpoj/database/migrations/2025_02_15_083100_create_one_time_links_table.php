@@ -13,7 +13,6 @@ return new class extends Migration {
             $table->string('token')->unique();
             $table->timestamps();
             $table->softDeletes();
-
             $table->timestamp('used_at')->nullable();
         });
     }

@@ -135,7 +135,9 @@ class FileService
 
         $link = OneTimeLink::where('token', $token)->firstOrFail();
 
-
+        if ($link->used_at || $link->deleted_at) {
+            throw new \Exception('Посилання недоступне або вже використано.');
+        }
         $file = File::findOrFail($link->file_id);
         $file->increment('views');
 
