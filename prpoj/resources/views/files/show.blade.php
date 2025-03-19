@@ -49,7 +49,7 @@
         <tbody>
         @foreach ($file->oneTimeLinks as $link)
             <tr id="link-{{ $link->token }}">
-                <td><a href="{{ route('file.view.one', ['token' => $link->token]) }}" target="_blank">{{ route('file.view.one', ['token' => $link->token]) }}</a></td>
+                <td><a href="{{ route('file.views.one', ['token' => $link->token]) }}" target="_blank">{{ route('file.views.one', ['token' => $link->token]) }}</a></td>
                 <td>{{ $link->created_at->toDateTimeString() }}</td>
                 <td>
                     <form action="{{ route('file.delete.link', ['token' => $link->token]) }}" method="POST" style="display:inline;">

@@ -3,7 +3,6 @@
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\OneTimeLinkController;
-use App\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -22,13 +21,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/files/create', [FileController::class, 'create'])->name('files.create');
     Route::post('/files', [FileController::class, 'store'])->name('files.store');
     Route::get('/files/{id}', [FileController::class, 'show'])->name('files.show');
-    Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
     Route::delete('/files/{id}', [FileController::class, 'destroy'])->name('files.destroy');
 });
 Route::get('/file/{id}', [FileController::class, 'view'])->name('files.view');
 Route::delete('/file/{token}/delete', [OneTimeLinkController::class, 'deleteLink'])->name('file.delete.link');
 Route::post('/files/{file}/generate-one-time-link', [OneTimeLinkController::class, 'generate'])->name('file.generate.one');
-Route::get('/files/view/{token}', [OneTimeLinkController::class, 'view'])->name('file.view.one');
-
+Route::get('/files/view/{token}', [OneTimeLinkController::class, 'view'])->name('file.views.one');
+Route::get('/statistics', [FileController::class, 'statistics'])->middleware(['auth'])->name('files.statistics');
 
 require __DIR__.'/auth.php';
+

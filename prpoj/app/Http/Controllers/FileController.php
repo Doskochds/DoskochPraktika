@@ -2,12 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\File;
+use App\Services\FileService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class FileController extends Controller
 {
+    protected $fileService;
+
+    public function __construct(FileService $fileService)
+    {
+        $this->fileService = $fileService;
+    }
+
     public function create()
     {
         return view('files.create');
@@ -15,59 +22,50 @@ class FileController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        $request->validate(
+            [
             'file' => 'required|file|mimes:jpg,png,jpeg,gif,bmp,tiff,ai,cdr,svg,wmf,emf|max:5120',
             'comment' => 'nullable|string|max:255',
             'delete_at' => 'nullable|date|after:today',
-        ]);
+            ]
+        );
 
-        // завантаження  файлу зі шляху користувача
-        $filePath = $request->file('file')->store('files', 'public');
-
-
-        File::create([
-            'user_id' => auth()->id(),
-            'file_name' => $filePath,
-            'comment' => $request->input('comment'),
-            'delete_at' => $request->input('delete_at'),
-        ]);
+        $this->fileService->uploadFile($request);
 
         return redirect()->route('files.index');
     }
+
     public function index()
     {
-        $files = File::where('user_id', auth()->id())
-        ->orderBy('created_at', 'desc')
-        ->get();
-
+        $files = $this->fileService->getUserFiles();
 
         return view('files.index', compact('files'));
     }
+
     public function show($id)
     {
-        $file = File::where('id', $id)->where('user_id', auth()->id())->firstOrFail();
+        $file = $this->fileService->getFile($id);
 
         return view('files.show', compact('file'));
     }
 
     public function destroy($id)
     {
-        $file = File::where('id', $id)->where('user_id', auth()->id())->firstOrFail();
-
-
-        Storage::disk('public')->delete($file->file_name);
-
-
-        $file->delete();
-        $file->oneTimeLinks()->delete();
+        $this->fileService->deleteFile($id);
 
         return redirect()->route('files.index')->with('success', 'Файл успішно видалено');
     }
+
     public function view($id)
     {
-        $file = File::findOrFail($id);
+        $file = $this->fileService->getFileForView($id);
 
+        return response()->file($file);
+    }
+    public function statistics()
+    {
+        $report = $this->fileService->getStatistics();
 
-        return response()->file(storage_path("app/public/{$file->file_name}"));
+        return view('files.statistics', compact('report'));
     }
 }

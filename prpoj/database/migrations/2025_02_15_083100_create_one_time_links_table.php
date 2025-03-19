@@ -12,7 +12,7 @@ return new class extends Migration {
             $table->foreignId('file_id')->constrained()->onDelete('cascade');
             $table->string('token')->unique();
             $table->timestamps();
-
+            $table->softDeletes();
             $table->timestamp('used_at')->nullable();
         });
     }
