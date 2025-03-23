@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
 use App\Models\File;
@@ -8,36 +10,38 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use Exception;
 
 class FileService
 {
-    public function uploadFile($request)
+    public function uploadFile(Request $request): File
     {
         $filePath = $request->file('file')->store('files', 'public');
 
         return File::create(
             [
-            'user_id' => Auth::id(),
-            'file_name' => $filePath,
-            'comment' => $request->input('comment'),
-            'delete_at' => $request->input('delete_at'),
+                'user_id' => Auth::id(),
+                'file_name' => $filePath,
+                'comment' => $request->input('comment'),
+                'delete_at' => $request->input('delete_at'),
             ]
         );
     }
 
-    public function getUserFiles()
+    public function getUserFiles(): \Illuminate\Database\Eloquent\Collection
     {
         return File::where('user_id', Auth::id())
             ->orderBy('created_at', 'desc')
             ->get();
     }
 
-    public function getFile($id)
+    public function getFile(int $id): File
     {
         return File::where('id', $id)->where('user_id', Auth::id())->firstOrFail();
     }
 
-    public function deleteFile($id)
+    public function deleteFile(int $id): void
     {
         $file = File::where('id', $id)->where('user_id', Auth::id())->firstOrFail();
         Storage::disk('public')->delete($file->file_name);
@@ -47,14 +51,15 @@ class FileService
         $file->delete();
     }
 
-    public function getFileForView($id)
+    public function getFileForView(int $id): string
     {
         $file = File::findOrFail($id);
         $file->increment('views');
+
         return storage_path("app/public/{$file->file_name}");
     }
 
-    public function deleteExpiredFiles()
+    public function deleteExpiredFiles(): void
     {
         $expiredFiles = File::whereNotNull('delete_at')
             ->where('delete_at', '<=', Carbon::now())
@@ -67,21 +72,21 @@ class FileService
         }
     }
 
-    public function getStatistics()
+    public function getStatistics(): array
     {
         $totalLinks = OneTimeLink::withTrashed()->count();
         $unusedLinks = OneTimeLink::whereNull('used_at')->count();
 
         $userLinks = OneTimeLink::whereHas(
             'file', function ($query) {
-                $query->where('user_id', Auth::id());
-            }
+            $query->where('user_id', Auth::id());
+        }
         )->withTrashed()->count();
 
         $userUnusedLinks = OneTimeLink::whereHas(
             'file', function ($query) {
-                $query->where('user_id', Auth::id());
-            }
+            $query->where('user_id', Auth::id());
+        }
         )->whereNull('used_at')->count();
 
         $userUsedLinks = $userLinks - $userUnusedLinks;
@@ -103,10 +108,10 @@ class FileService
         ];
     }
 
-    public function generateOneTimeLinks($fileId, $count = 1)
+    public function generateOneTimeLinks(int $fileId, int $count = 1): array
     {
         if ($count > 50) {
-            throw new \Exception('Не більше 50 за раз');
+            throw new Exception('Не більше 50 за раз');
         }
 
         $links = [];
@@ -114,9 +119,9 @@ class FileService
             $token = Str::random(32);
             $link = OneTimeLink::create(
                 [
-                'file_id' => $fileId,
-                'token' => $token,
-                'created_at' => Carbon::now(),
+                    'file_id' => $fileId,
+                    'token' => $token,
+                    'created_at' => Carbon::now(),
                 ]
             );
 
@@ -130,32 +135,30 @@ class FileService
         return $links;
     }
 
-    public function getFileByToken($token)
+    public function getFileByToken(string $token): string
     {
-
         $link = OneTimeLink::where('token', $token)->firstOrFail();
 
         if ($link->used_at || $link->deleted_at) {
-            throw new \Exception('Посилання недоступне або вже використано.');
+            throw new Exception('Посилання недоступне або вже використано.');
         }
         $file = File::findOrFail($link->file_id);
         $file->increment('views');
 
         $link->update(['used_at' => now()]);
 
-
         return storage_path("app/public/{$file->file_name}");
     }
 
-    public function deleteOneTimeLink($token)
+    public function deleteOneTimeLink(string $token): void
     {
         $link = OneTimeLink::where('token', $token)->firstOrFail();
         $link->delete();
     }
 
-    //Якщо одобрять видалення по часу невикористаних
-    //public function cleanUpExpiredLinks()
-    //{
-        //OneTimeLink::where('created_at', '<', Carbon::now()->subMinutes(10))->delete();
-    //}
+    // Якшо одобрять видалення по часу невикористаних
+    // public function cleanUpExpiredLinks(): void
+    // {
+    //     OneTimeLink::where('created_at', '<', Carbon::now()->subMinutes(10))->delete();
+    // }
 }
