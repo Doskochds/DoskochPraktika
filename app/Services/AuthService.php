@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
 use App\Models\User;
@@ -18,7 +20,7 @@ class AuthService
     /**
      * Handle email verification actions.
      */
-    public function sendVerificationNotification($user): RedirectResponse
+    public function sendVerificationNotification(User $user): RedirectResponse
     {
         if ($user->hasVerifiedEmail()) {
             return redirect()->intended(route('dashboard', absolute: false));
@@ -29,14 +31,14 @@ class AuthService
         return back()->with('status', 'verification-link-sent');
     }
 
-    public function handleVerificationPrompt($user)
+    public function handleVerificationPrompt(User $user): RedirectResponse
     {
         return $user->hasVerifiedEmail()
             ? redirect()->intended(route('dashboard', absolute: false))
             : view('auth.verify-email');
     }
 
-    public function verifyEmail($user, $callback): RedirectResponse
+    public function verifyEmail(User $user, callable $callback): RedirectResponse
     {
         if ($user->hasVerifiedEmail()) {
             return redirect()->intended(route('dashboard', absolute: false) . '?verified=1');
@@ -52,18 +54,18 @@ class AuthService
     /**
      * Handle password-related actions.
      */
-    public function updatePassword($user, $validated): RedirectResponse
+    public function updatePassword(User $user, array $validated): RedirectResponse
     {
         $user->update(
             [
-            'password' => Hash::make($validated['password']),
+                'password' => Hash::make($validated['password']),
             ]
         );
 
         return back()->with('status', 'password-updated');
     }
 
-    public function sendPasswordResetLink($validated): RedirectResponse
+    public function sendPasswordResetLink(array $validated): RedirectResponse
     {
         $status = Password::sendResetLink($validated);
 
@@ -72,7 +74,7 @@ class AuthService
             : back()->withInput()->withErrors(['email' => __($status)]);
     }
 
-    public function resetPassword($validated, $callback): RedirectResponse
+    public function resetPassword(array $validated, callable $callback): RedirectResponse
     {
         $status = Password::reset($validated, $callback);
 
@@ -81,18 +83,17 @@ class AuthService
             : back()->withInput()->withErrors(['email' => __($status)]);
     }
 
-    public function confirmPassword($user, $password): RedirectResponse
+    public function confirmPassword(User $user, string $password): RedirectResponse
     {
         if (! Auth::guard('web')->validate(
             [
-            'email' => $user->email,
-            'password' => $password,
+                'email' => $user->email,
+                'password' => $password,
             ]
-        )
-        ) {
+        )) {
             throw ValidationException::withMessages(
                 [
-                'password' => __('auth.password'),
+                    'password' => __('auth.password'),
                 ]
             );
         }
@@ -123,14 +124,13 @@ class AuthService
         return redirect('/');
     }
 
-
-    public function register($validated): RedirectResponse
+    public function register(array $validated): RedirectResponse
     {
         $user = User::create(
             [
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'password' => Hash::make($validated['password']),
             ]
         );
 
@@ -141,3 +141,4 @@ class AuthService
         return redirect(route('dashboard', absolute: false));
     }
 }
+
