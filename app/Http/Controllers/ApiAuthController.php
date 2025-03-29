@@ -1,7 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
+use App\Http\Requests\RegisterRequest;
+use App\Http\Requests\LoginRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -11,14 +15,8 @@ class ApiAuthController extends Controller
     /**
      * Реєстрація користувача.
      */
-    public function register(Request $request)
+    public function register(RegisterRequest $request)
     {
-
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8',
-        ]);
 
 
         $user = User::create([
@@ -27,9 +25,7 @@ class ApiAuthController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-
         $token = $user->createToken('auth_token')->plainTextToken;
-
 
         return response()->json(['token' => $token, 'user' => $user], 201);
     }
@@ -37,13 +33,8 @@ class ApiAuthController extends Controller
     /**
      * Логін користувача.
      */
-    public function login(Request $request)
+    public function login(LoginRequest $request)
     {
-
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
 
 
         $user = User::where('email', $request->email)->first();
@@ -51,7 +42,6 @@ class ApiAuthController extends Controller
         if (!$user || !Hash::check($request->password, $user->password)) {
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
-
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
@@ -63,9 +53,7 @@ class ApiAuthController extends Controller
      */
     public function logout(Request $request)
     {
-
         $request->user()->tokens()->delete();
-
 
         return response()->json(['message' => 'Logged out successfully']);
     }
@@ -78,3 +66,4 @@ class ApiAuthController extends Controller
         return response()->json($request->user());
     }
 }
+
