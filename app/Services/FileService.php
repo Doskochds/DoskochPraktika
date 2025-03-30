@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\DTO\FileDTO;
+use App\DTO\StatisticsDTO;
+use App\DTO\OneTimeLinkDTO;
 use App\Models\File;
 use App\Models\OneTimeLink;
 use Carbon\Carbon;
@@ -15,20 +18,31 @@ use Exception;
 
 class FileService
 {
-    public function uploadFile(Request $request): File
+    /**
+     * Завантажити файл і зберегти його в базі
+     *
+     * @param FileDTO $fileDTO
+     * @return File
+     */
+    public function uploadFile(FileDTO $fileDTO): File
     {
-        $filePath = $request->file('file')->store('files', 'public');
+        // Отримуємо шлях до файлу з DTO
+        $filePath = $fileDTO->file;
 
-        return File::create(
-            [
-                'user_id' => Auth::id(),
-                'file_name' => $filePath,
-                'comment' => $request->input('comment'),
-                'delete_at' => $request->input('delete_at'),
-            ]
-        );
+        // Створюємо запис у базі даних
+        return File::create([
+            'user_id' => Auth::id(),
+            'file_name' => $filePath,
+            'comment' => $fileDTO->comment,
+            'delete_at' => $fileDTO->deleteAt,
+        ]);
     }
 
+    /**
+     * Отримати всі файли користувача
+     *
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
     public function getUserFiles(): \Illuminate\Database\Eloquent\Collection
     {
         return File::where('user_id', Auth::id())
@@ -36,11 +50,23 @@ class FileService
             ->get();
     }
 
+    /**
+     * Отримати файл по ID
+     *
+     * @param int $id
+     * @return File
+     */
     public function getFile(int $id): File
     {
         return File::where('id', $id)->where('user_id', Auth::id())->firstOrFail();
     }
 
+    /**
+     * Видалити файл по ID
+     *
+     * @param int $id
+     * @return void
+     */
     public function deleteFile(int $id): void
     {
         $file = File::where('id', $id)->where('user_id', Auth::id())->firstOrFail();
@@ -51,6 +77,12 @@ class FileService
         $file->delete();
     }
 
+    /**
+     * Отримати файл для перегляду по ID
+     *
+     * @param int $id
+     * @return string
+     */
     public function getFileForView(int $id): string
     {
         $file = File::findOrFail($id);
@@ -59,6 +91,11 @@ class FileService
         return storage_path("app/public/{$file->file_name}");
     }
 
+    /**
+     * Видалити прострочені файли
+     *
+     * @return void
+     */
     public function deleteExpiredFiles(): void
     {
         $expiredFiles = File::whereNotNull('delete_at')
@@ -72,6 +109,11 @@ class FileService
         }
     }
 
+    /**
+     * Отримати статистику по файлах і лінкам
+     *
+     * @return StatisticsDTO
+     */
     public function getStatistics(): array
     {
         $totalLinks = OneTimeLink::withTrashed()->count();
@@ -91,23 +133,37 @@ class FileService
 
         $userUsedLinks = $userLinks - $userUnusedLinks;
 
-        return [
-            'totalFiles' => File::count(),
-            'deletedFiles' => File::onlyTrashed()->count(),
-            'totalLinks' => $totalLinks,
-            'usedLinks' => $totalLinks - $unusedLinks,
-            'unusedLinks' => $unusedLinks,
-            'totalViews' => File::sum('views'),
-            'files' => File::withTrashed()->withCount('oneTimeLinks')->get(),
-            'userFiles' => File::where('user_id', Auth::id())->count(),
-            'userDeletedFiles' => File::where('user_id', Auth::id())->onlyTrashed()->count(),
-            'userLinks' => $userLinks,
-            'userUsedLinks' => $userUsedLinks,
-            'userUnusedLinks' => $userUnusedLinks,
-            'userTotalViews' => File::where('user_id', Auth::id())->sum('views'),
-        ];
+
+        $totalViews = (int) File::sum('views');
+        $userTotalViews = (int) File::where('user_id', Auth::id())->sum('views'); // Приведення до int
+
+
+        $statisticsDTO = new StatisticsDTO(
+            File::count(), // totalFiles
+            File::onlyTrashed()->count(), // deletedFiles
+            $totalLinks,
+            $totalLinks - $unusedLinks, // usedLinks
+            $unusedLinks,
+            $totalViews,
+            File::withTrashed()->withCount('oneTimeLinks')->get()->toArray(), // files
+            File::where('user_id', Auth::id())->count(), // userFiles
+            File::where('user_id', Auth::id())->onlyTrashed()->count(), // userDeletedFiles
+            $userLinks,
+            $userUsedLinks,
+            $userUnusedLinks,
+            $userTotalViews
+        );
+
+        return $statisticsDTO;
     }
 
+    /**
+     * Генерація одноразових лінків
+     *
+     * @param int $fileId
+     * @param int $count
+     * @return OneTimeLinkDTO[]
+     */
     public function generateOneTimeLinks(int $fileId, int $count = 1): array
     {
         if ($count > 50) {
@@ -125,16 +181,22 @@ class FileService
                 ]
             );
 
-            $links[] = [
-                'token' => $token,
-                'url' => route('file.views.one', ['token' => $token]),
-                'created_at' => $link->created_at->toDateTimeString(),
-            ];
+            $links[] = new OneTimeLinkDTO(
+                $token,
+                route('file.views.one', ['token' => $token]),
+                $link->created_at->toDateTimeString()
+            );
         }
 
         return $links;
     }
 
+    /**
+     * Отримати файл за одноразовим лінком
+     *
+     * @param string $token
+     * @return string
+     */
     public function getFileByToken(string $token): string
     {
         $link = OneTimeLink::where('token', $token)->firstOrFail();
@@ -150,15 +212,15 @@ class FileService
         return storage_path("app/public/{$file->file_name}");
     }
 
+    /**
+     * Видалити одноразовий лінк
+     *
+     * @param string $token
+     * @return void
+     */
     public function deleteOneTimeLink(string $token): void
     {
         $link = OneTimeLink::where('token', $token)->firstOrFail();
         $link->delete();
     }
-
-    // Якшо одобрять видалення по часу невикористаних
-    // public function cleanUpExpiredLinks(): void
-    // {
-    //     OneTimeLink::where('created_at', '<', Carbon::now()->subMinutes(10))->delete();
-    // }
 }

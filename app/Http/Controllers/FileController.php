@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\DTO\FileDTO;
 use App\Services\FileService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 class FileController extends Controller
 {
-    protected $fileService;
+    protected FileService $fileService;
 
     public function __construct(FileService $fileService)
     {
@@ -20,17 +21,23 @@ class FileController extends Controller
         return view('files.create');
     }
 
-    public function store(Request $request)
+    public function store(Request $request): \Illuminate\Http\RedirectResponse
     {
-        $request->validate(
-            [
+
+        $request->validate([
             'file' => 'required|file|mimes:jpg,png,jpeg,gif,bmp,tiff,ai,cdr,svg,wmf,emf|max:5120',
             'comment' => 'nullable|string|max:255',
             'delete_at' => 'nullable|date|after:today',
-            ]
+        ]);
+
+        $fileDTO = new FileDTO(
+            $request->file('file')->store('files', 'public'), // шлях до файлу
+            $request->input('comment'),
+            $request->input('delete_at')
         );
 
-        $this->fileService->uploadFile($request);
+
+        $this->fileService->uploadFile($fileDTO);
 
         return redirect()->route('files.index');
     }
@@ -62,6 +69,7 @@ class FileController extends Controller
 
         return response()->file($file);
     }
+
     public function statistics()
     {
         $report = $this->fileService->getStatistics();
