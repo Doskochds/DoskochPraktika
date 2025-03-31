@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\DTO\FileDTO;
+use App\DTO\OneTimeLinkDTO;
 use App\Services\FileService;
 use Illuminate\Http\Request;
 
@@ -19,11 +19,17 @@ class OneTimeLinkController extends Controller
     {
         try {
             $count = $request->input('count', 1);
-
-            // Створюємо DTO для кількості лінків
             $links = $this->fileService->generateOneTimeLinks($fileId, $count);
 
-            return response()->json(['urls' => $links]);
+            return response()->json([
+                'links' => array_map(function (OneTimeLinkDTO $link) {
+                    return [
+                        'token' => $link->token,
+                        'url' => $link->url,
+                        'created_at' => $link->createdAt,
+                    ];
+                }, $links),
+            ]);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 400);
         }
@@ -31,19 +37,20 @@ class OneTimeLinkController extends Controller
 
     public function show($fileId)
     {
-        // Отримуємо файл через сервіс
-        $file = $this->fileService->getFile($fileId);
-
-        return view('files.show', compact('file'));
+        try {
+            $file = $this->fileService->getFile($fileId);
+            return view('files.show', compact('file'));
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 400);
+        }
     }
 
     public function view($token)
     {
         try {
-            // Отримуємо шлях до файлу через токен
             $filePath = $this->fileService->getFileByToken($token);
 
-            // Видаляємо одноразове посилання після використання
+            // Видалення одноразового лінка після перегляду
             $this->fileService->deleteOneTimeLink($token);
 
             return response()->file($filePath);
@@ -55,12 +62,11 @@ class OneTimeLinkController extends Controller
     public function deleteLink($token)
     {
         try {
-
             $this->fileService->deleteOneTimeLink($token);
-
             return response()->json(['message' => 'Link deleted successfully']);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 400);
         }
     }
 }
+
