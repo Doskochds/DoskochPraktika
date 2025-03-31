@@ -26,10 +26,7 @@ class FileService
      */
     public function uploadFile(FileDTO $fileDTO): File
     {
-        // Отримуємо шлях до файлу з DTO
         $filePath = $fileDTO->file;
-
-        // Створюємо запис у базі даних
         return File::create([
             'user_id' => Auth::id(),
             'file_name' => $filePath,
@@ -71,9 +68,7 @@ class FileService
     {
         $file = File::where('id', $id)->where('user_id', Auth::id())->firstOrFail();
         Storage::disk('public')->delete($file->file_name);
-
         $file->oneTimeLinks()->delete();
-
         $file->delete();
     }
 
@@ -87,7 +82,6 @@ class FileService
     {
         $file = File::findOrFail($id);
         $file->increment('views');
-
         return storage_path("app/public/{$file->file_name}");
     }
 
@@ -101,7 +95,6 @@ class FileService
         $expiredFiles = File::whereNotNull('delete_at')
             ->where('delete_at', '<=', Carbon::now())
             ->get();
-
         foreach ($expiredFiles as $file) {
             Storage::disk('public')->delete($file->file_name);
             $file->oneTimeLinks()->delete();
@@ -118,35 +111,29 @@ class FileService
     {
         $totalLinks = OneTimeLink::withTrashed()->count();
         $unusedLinks = OneTimeLink::whereNull('used_at')->count();
-
         $userLinks = OneTimeLink::whereHas(
             'file', function ($query) {
             $query->where('user_id', Auth::id());
         }
         )->withTrashed()->count();
-
         $userUnusedLinks = OneTimeLink::whereHas(
             'file', function ($query) {
             $query->where('user_id', Auth::id());
         }
         )->whereNull('used_at')->count();
-
         $userUsedLinks = $userLinks - $userUnusedLinks;
-
         $totalViews = (int) File::sum('views');
-        $userTotalViews = (int) File::where('user_id', Auth::id())->sum('views'); // Приведення до int
-
-        // Створюємо і повертаємо об'єкт StatisticsDTO
+        $userTotalViews = (int) File::where('user_id', Auth::id())->sum('views');
         return new StatisticsDTO(
-            File::count(), // totalFiles
-            File::onlyTrashed()->count(), // deletedFiles
+            File::count(),
+            File::onlyTrashed()->count(),
             $totalLinks,
-            $totalLinks - $unusedLinks, // usedLinks
+            $totalLinks - $unusedLinks,
             $unusedLinks,
             $totalViews,
-            File::withTrashed()->withCount('oneTimeLinks')->get()->toArray(), // files
-            File::where('user_id', Auth::id())->count(), // userFiles
-            File::where('user_id', Auth::id())->onlyTrashed()->count(), // userDeletedFiles
+            File::withTrashed()->withCount('oneTimeLinks')->get()->toArray(),
+            File::where('user_id', Auth::id())->count(),
+            File::where('user_id', Auth::id())->onlyTrashed()->count(),
             $userLinks,
             $userUsedLinks,
             $userUnusedLinks,
@@ -167,7 +154,6 @@ class FileService
         if ($count > 50) {
             throw new Exception('Не більше 50 за раз');
         }
-
         $links = [];
         for ($i = 0; $i < $count; $i++) {
             $token = Str::random(32);
@@ -185,7 +171,6 @@ class FileService
                 $link->created_at->toDateTimeString()
             );
         }
-
         return $links;
     }
 
@@ -198,15 +183,12 @@ class FileService
     public function getFileByToken(string $token): string
     {
         $link = OneTimeLink::where('token', $token)->firstOrFail();
-
         if ($link->used_at || $link->deleted_at) {
             throw new Exception('Посилання недоступне або вже використано.');
         }
         $file = File::findOrFail($link->file_id);
         $file->increment('views');
-
         $link->update(['used_at' => now()]);
-
         return storage_path("app/public/{$file->file_name}");
     }
 

@@ -3,8 +3,8 @@ namespace App\DTO;
 
 class FileDTO
 {
-public string $file; // Шлях до файлу
-public ?string $comment; // Коментар
+public string $file;
+public ?string $comment;
 public ?string $deleteAt;
 
 public function __construct(string $file, ?string $comment, ?string $deleteAt)
