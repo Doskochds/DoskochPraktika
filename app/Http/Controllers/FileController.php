@@ -74,6 +74,9 @@ class FileController extends Controller
     {
         $report = $this->fileService->getStatistics();
 
+
         return view('files.statistics', compact('report'));
     }
+
+
 }

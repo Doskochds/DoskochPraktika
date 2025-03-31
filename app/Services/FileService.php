@@ -114,7 +114,7 @@ class FileService
      *
      * @return StatisticsDTO
      */
-    public function getStatistics(): array
+    public function getStatistics(): StatisticsDTO
     {
         $totalLinks = OneTimeLink::withTrashed()->count();
         $unusedLinks = OneTimeLink::whereNull('used_at')->count();
@@ -133,12 +133,11 @@ class FileService
 
         $userUsedLinks = $userLinks - $userUnusedLinks;
 
-
         $totalViews = (int) File::sum('views');
         $userTotalViews = (int) File::where('user_id', Auth::id())->sum('views'); // Приведення до int
 
-
-        $statisticsDTO = new StatisticsDTO(
+        // Створюємо і повертаємо об'єкт StatisticsDTO
+        return new StatisticsDTO(
             File::count(), // totalFiles
             File::onlyTrashed()->count(), // deletedFiles
             $totalLinks,
@@ -153,9 +152,8 @@ class FileService
             $userUnusedLinks,
             $userTotalViews
         );
-
-        return $statisticsDTO;
     }
+
 
     /**
      * Генерація одноразових лінків

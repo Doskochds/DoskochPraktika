@@ -20,27 +20,27 @@
         <tbody>
         <tr>
             <td><strong>Загальна кількість файлів</strong></td>
-            <td>{{ $report['totalFiles'] }}</td>
+            <td>{{ $report->totalFiles }}</td>
         </tr>
         <tr>
             <td><strong>Кількість видалених файлів</strong></td>
-            <td>{{ $report['deletedFiles'] }}</td>
+            <td>{{ $report->deletedFiles }}</td>
         </tr>
         <tr>
             <td><strong>Загальна кількість одноразових посилань</strong></td>
-            <td>{{ $report['totalLinks'] }}</td>
+            <td>{{ $report->totalLinks }}</td>
         </tr>
         <tr>
             <td><strong>Кількість використаних одноразових посилань</strong></td>
-            <td>{{ $report['usedLinks'] }}</td>
+            <td>{{ $report->usedLinks }}</td>
         </tr>
         <tr>
             <td><strong>Кількість невикористаних одноразових посилань</strong></td>
-            <td>{{ $report['unusedLinks'] }}</td>
+            <td>{{ $report->unusedLinks }}</td>
         </tr>
         <tr>
             <td><strong>Загальна кількість переглядів файлів</strong></td>
-            <td>{{ $report['totalViews'] }}</td>
+            <td>{{ $report->totalViews }}</td>
         </tr>
         </tbody>
     </table>
@@ -57,27 +57,27 @@
         <tbody>
         <tr>
             <td><strong>Кількість файлів користувача</strong></td>
-            <td>{{ $report['userFiles'] }}</td>
+            <td>{{ $report->userFiles }}</td>
         </tr>
         <tr>
             <td><strong>Кількість видалених файлів користувача</strong></td>
-            <td>{{ $report['userDeletedFiles'] }}</td>
+            <td>{{ $report->userDeletedFiles }}</td>
         </tr>
         <tr>
             <td><strong>Кількість одноразових посилань користувача</strong></td>
-            <td>{{ $report['userLinks'] }}</td>
+            <td>{{ $report->userLinks }}</td>
         </tr>
         <tr>
             <td><strong>Кількість використаних одноразових посилань користувача</strong></td>
-            <td>{{ $report['userUsedLinks'] }}</td>
+            <td>{{ $report->userUsedLinks }}</td>
         </tr>
         <tr>
             <td><strong>Кількість невикористаних одноразових посилань користувача</strong></td>
-            <td>{{ $report['userUnusedLinks'] }}</td>
+            <td>{{ $report->userUnusedLinks }}</td>
         </tr>
         <tr>
             <td><strong>Кількість переглядів файлів користувача</strong></td>
-            <td>{{ $report['userTotalViews'] }}</td>
+            <td>{{ $report->userTotalViews }}</td>
         </tr>
         </tbody>
     </table>
