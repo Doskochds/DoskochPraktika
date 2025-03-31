@@ -20,7 +20,6 @@ class OneTimeLinkController extends Controller
         try {
             $count = $request->input('count', 1);
             $links = $this->fileService->generateOneTimeLinks($fileId, $count);
-
             return response()->json([
                 'links' => array_map(function (OneTimeLinkDTO $link) {
                     return [
@@ -49,10 +48,7 @@ class OneTimeLinkController extends Controller
     {
         try {
             $filePath = $this->fileService->getFileByToken($token);
-
-            // Видалення одноразового лінка після перегляду
             $this->fileService->deleteOneTimeLink($token);
-
             return response()->file($filePath);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 400);

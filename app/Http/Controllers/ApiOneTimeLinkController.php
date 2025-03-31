@@ -1,20 +1,18 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use App\Services\FileService;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 
 class ApiOneTimeLinkController extends Controller
 {
     protected $fileService;
-
     public function __construct(FileService $fileService)
     {
         $this->fileService = $fileService;
     }
-
-    public function generate($fileId, Request $request)
+    public function generate($fileId, Request $request): JsonResponse
     {
         try {
             $count = $request->input('count', 1);
@@ -24,7 +22,6 @@ class ApiOneTimeLinkController extends Controller
             return response()->json(['error' => $e->getMessage()], 400);
         }
     }
-
     public function view($token)
     {
         try {
@@ -34,7 +31,6 @@ class ApiOneTimeLinkController extends Controller
             return response()->json(['error' => 'Invalid or expired token'], 404);
         }
     }
-
     public function deleteLink($token)
     {
         try {
@@ -44,10 +40,4 @@ class ApiOneTimeLinkController extends Controller
             return response()->json(['error' => $e->getMessage()], 400);
         }
     }
-
-//    public function cleanUpLinks()
-//    {
-//        $this->fileService->cleanUpExpiredLinks();
-//        return response()->json(['message' => 'Expired links cleaned up successfully']);
-//    }
 }
