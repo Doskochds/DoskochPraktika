@@ -1,11 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Auth;
 
-use App\Http\Controllers\Controller;
+use App\DTO\UserLoginDTO;
 use App\Services\AuthService;
-use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redirect;
+use App\Http\Controllers\Controller;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -16,18 +19,50 @@ class AuthenticatedSessionController extends Controller
         $this->authService = $authService;
     }
 
+    /**
+     * Показати форму входу.
+     *
+     * @return \Illuminate\View\View
+     */
     public function create()
     {
         return view('auth.login');
     }
 
-    public function store(LoginRequest $request)
+    /**
+     * Обробка запиту на логін.
+     *
+     * @param \App\Http\Requests\Auth\LoginRequest $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function store(Request $request)
     {
-        return $this->authService->login($request);
+        // Створюємо DTO з даних запиту
+        $dto = new UserLoginDTO(
+            $request->input('email'),
+            $request->input('password')
+        );
+
+        // Викликаємо метод сервісу для логіну
+        try {
+            // Викликаємо метод login сервісу, який має повернути JSON або RedirectResponse
+            return $this->authService->login($dto);
+        } catch (\Exception $e) {
+            return Redirect::route('login')->withErrors(['email' => 'Невірні облікові дані.']);
+        }
     }
 
+    /**
+     * Вихід з системи.
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function destroy(Request $request)
     {
-        return $this->authService->logout($request);
+        // Викликаємо метод logout сервісу
+        $this->authService->logout($request);
+
+        // Переадресовуємо на сторінку логіну
+        return redirect()->route('login');
     }
 }
