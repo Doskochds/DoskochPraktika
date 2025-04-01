@@ -4,30 +4,37 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\DTO\UserRegistrationDTO;
+use App\DTO\UserLoginDTO;
+use App\DTO\CurrentUserDTO;
+use App\Services\AuthService;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Requests\LoginRequest;
-use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 
 class ApiAuthController extends Controller
 {
+    protected AuthService $authService;
+
+    public function __construct(AuthService $authService)
+    {
+        $this->authService = $authService;
+    }
+
     /**
      * Реєстрація користувача.
      */
     public function register(RegisterRequest $request)
     {
+        // Створюємо DTO для реєстрації
+        $dto = new UserRegistrationDTO(
+            $request->name,
+            $request->email,
+            $request->password
+        );
 
-
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
-
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        return response()->json(['token' => $token, 'user' => $user], 201);
+        // Викликаємо сервіс для реєстрації
+        return $this->authService->register($dto);
     }
 
     /**
@@ -35,17 +42,14 @@ class ApiAuthController extends Controller
      */
     public function login(LoginRequest $request)
     {
+        // Створюємо DTO для логіну
+        $dto = new UserLoginDTO(
+            $request->email,
+            $request->password
+        );
 
-
-        $user = User::where('email', $request->email)->first();
-
-        if (!$user || !Hash::check($request->password, $user->password)) {
-            return response()->json(['message' => 'Invalid credentials'], 401);
-        }
-
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        return response()->json(['token' => $token, 'user' => $user]);
+        // Викликаємо сервіс для логіну
+        return $this->authService->login($dto);
     }
 
     /**
@@ -53,9 +57,8 @@ class ApiAuthController extends Controller
      */
     public function logout(Request $request)
     {
-        $request->user()->tokens()->delete();
-
-        return response()->json(['message' => 'Logged out successfully']);
+        // Викликаємо сервіс для логауту
+        return $this->authService->logout($request);
     }
 
     /**
@@ -63,7 +66,11 @@ class ApiAuthController extends Controller
      */
     public function user(Request $request)
     {
-        return response()->json($request->user());
+
+        $dto = new CurrentUserDTO($request->user()->email);
+
+
+        return $this->authService->user($dto);
     }
 }
 

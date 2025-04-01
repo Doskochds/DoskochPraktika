@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\DTO\PasswordResetDTO;
+use App\DTO\PasswordUpdateDTO;
+use App\DTO\UserRegistrationDTO;
+use App\DTO\UserLoginDTO;
+use App\DTO\CurrentUserDTO;
 use App\Models\User;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Auth\Events\Registered;
@@ -12,7 +17,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
-use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class AuthService
@@ -54,29 +58,32 @@ class AuthService
     /**
      * Handle password-related actions.
      */
-    public function updatePassword(User $user, array $validated): RedirectResponse
+    public function updatePassword(User $user, PasswordUpdateDTO $dto): RedirectResponse
     {
         $user->update(
             [
-                'password' => Hash::make($validated['password']),
+                'password' => Hash::make($dto->password),
             ]
         );
 
         return back()->with('status', 'password-updated');
     }
 
-    public function sendPasswordResetLink(array $validated): RedirectResponse
+    public function sendPasswordResetLink(PasswordResetDTO $dto): RedirectResponse
     {
-        $status = Password::sendResetLink($validated);
+        $status = Password::sendResetLink(['email' => $dto->email]);
 
         return $status == Password::RESET_LINK_SENT
             ? back()->with('status', __($status))
             : back()->withInput()->withErrors(['email' => __($status)]);
     }
 
-    public function resetPassword(array $validated, callable $callback): RedirectResponse
+    public function resetPassword(PasswordResetDTO $dto, callable $callback): RedirectResponse
     {
-        $status = Password::reset($validated, $callback);
+        $status = Password::reset(
+            ['email' => $dto->email, 'token' => $dto->token, 'password' => $dto->password],
+            $callback
+        );
 
         return $status == Password::PASSWORD_RESET
             ? redirect()->route('login')->with('status', __($status))
@@ -104,14 +111,20 @@ class AuthService
     /**
      * Handle authentication actions.
      */
-    public function login($request): RedirectResponse
+    public function login(UserLoginDTO $dto): RedirectResponse
     {
-        $request->authenticate();
-        $request->session()->regenerate();
-        return redirect()->intended(route('dashboard', absolute: false));
+        $user = User::where('email', $dto->email)->first();
+
+        if (!$user || !Hash::check($dto->password, $user->password)) {
+            return response()->json(['message' => 'Invalid credentials'], 401);
+        }
+
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json(['token' => $token, 'user' => $user]);
     }
 
-    public function logout($request): RedirectResponse
+    public function logout(\Illuminate\Http\Request $request): RedirectResponse
     {
         Auth::guard('web')->logout();
         $request->session()->invalidate();
@@ -119,13 +132,13 @@ class AuthService
         return redirect('/');
     }
 
-    public function register(array $validated): RedirectResponse
+    public function register(UserRegistrationDTO $dto): RedirectResponse
     {
         $user = User::create(
             [
-                'name' => $validated['name'],
-                'email' => $validated['email'],
-                'password' => Hash::make($validated['password']),
+                'name' => $dto->name,
+                'email' => $dto->email,
+                'password' => Hash::make($dto->password),
             ]
         );
 
@@ -134,6 +147,17 @@ class AuthService
         Auth::login($user);
 
         return redirect(route('dashboard', absolute: false));
+    }
+
+    public function user(CurrentUserDTO $dto)
+    {
+        $user = User::where('email', $dto->email)->first();
+
+        if (!$user) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+
+        return response()->json(['user' => $user]);
     }
 }
 
