@@ -9,7 +9,6 @@ class OneTimeLinkDTO
     public string $token;
     public string $url;
     public string $createdAt;
-
     public function __construct(string $token, string $url, string $createdAt)
     {
         $this->token = $token;

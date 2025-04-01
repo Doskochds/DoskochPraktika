@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Services\FileService;
@@ -37,7 +38,6 @@ class ApiFileController extends Controller
     public function show($id): JsonResponse
     {
         $file = $this->fileService->getFile($id);
-
         return response()->json(['file' => $file]);
     }
     public function destroy($id): JsonResponse

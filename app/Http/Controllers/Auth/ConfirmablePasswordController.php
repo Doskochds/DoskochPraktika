@@ -11,12 +11,10 @@ use Illuminate\View\View;
 class ConfirmablePasswordController extends Controller
 {
     protected AuthService $authService;
-
     public function __construct(AuthService $authService)
     {
         $this->authService = $authService;
     }
-
     /**
      * Show the confirm password view.
      */
@@ -24,7 +22,6 @@ class ConfirmablePasswordController extends Controller
     {
         return view('auth.confirm-password');
     }
-
     /**
      * Confirm the user's password.
      */
