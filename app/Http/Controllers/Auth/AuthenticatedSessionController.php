@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Auth;
 use App\DTO\UserLoginDTO;
 use App\Services\AuthService;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Redirect;
 use App\Http\Controllers\Controller;
 
@@ -33,19 +34,15 @@ class AuthenticatedSessionController extends Controller
      * Обробка запиту на логін.
      *
      * @param \App\Http\Requests\Auth\LoginRequest $request
-     * @return \Illuminate\Http\RedirectResponse
+     * @return \Illuminate\Http\JsonResponse
      */
     public function store(Request $request)
     {
-        // Створюємо DTO з даних запиту
         $dto = new UserLoginDTO(
             $request->input('email'),
             $request->input('password')
         );
-
-        // Викликаємо метод сервісу для логіну
         try {
-            // Викликаємо метод login сервісу, який має повернути JSON або RedirectResponse
             return $this->authService->login($dto);
         } catch (\Exception $e) {
             return Redirect::route('login')->withErrors(['email' => 'Невірні облікові дані.']);
