@@ -1,7 +1,6 @@
 <?php
 
 declare(strict_types=1);
-
 namespace App\Http\Controllers\Auth;
 
 use App\DTO\UserLoginDTO;
@@ -14,12 +13,10 @@ use App\Http\Controllers\Controller;
 class AuthenticatedSessionController extends Controller
 {
     protected AuthService $authService;
-
     public function __construct(AuthService $authService)
     {
         $this->authService = $authService;
     }
-
     /**
      * Показати форму входу.
      *
@@ -29,7 +26,6 @@ class AuthenticatedSessionController extends Controller
     {
         return view('auth.login');
     }
-
     /**
      * Обробка запиту на логін.
      *
@@ -48,7 +44,6 @@ class AuthenticatedSessionController extends Controller
             return Redirect::route('login')->withErrors(['email' => 'Невірні облікові дані.']);
         }
     }
-
     /**
      * Вихід з системи.
      *
@@ -56,10 +51,7 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request)
     {
-        // Викликаємо метод logout сервісу
         $this->authService->logout($request);
-
-        // Переадресовуємо на сторінку логіну
         return redirect()->route('login');
     }
 }

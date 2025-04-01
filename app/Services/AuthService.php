@@ -1,7 +1,6 @@
 <?php
 
 declare(strict_types=1);
-
 namespace App\Services;
 
 use App\DTO\PasswordResetDTO;
@@ -29,9 +28,7 @@ class AuthService
         if ($user->hasVerifiedEmail()) {
             return redirect()->intended(route('dashboard', absolute: false));
         }
-
         $user->sendEmailVerificationNotification();
-
         return back()->with('status', 'verification-link-sent');
     }
 
@@ -47,11 +44,9 @@ class AuthService
         if ($user->hasVerifiedEmail()) {
             return redirect()->intended(route('dashboard', absolute: false) . '?verified=1');
         }
-
         if ($callback($user)) {
             event(new Verified($user));
         }
-
         return redirect()->intended(route('dashboard', absolute: false) . '?verified=1');
     }
 
@@ -65,7 +60,6 @@ class AuthService
                 'password' => Hash::make($dto->password),
             ]
         );
-
         return back()->with('status', 'password-updated');
     }
 
@@ -157,11 +151,9 @@ class AuthService
     public function user(CurrentUserDTO $dto)
     {
         $user = User::where('email', $dto->email)->first();
-
         if (!$user) {
             return response()->json(['message' => 'User not found'], 404);
         }
-
         return response()->json(['user' => $user]);
     }
 }
