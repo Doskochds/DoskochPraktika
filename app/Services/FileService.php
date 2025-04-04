@@ -12,7 +12,6 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
-use Illuminate\Http\Request;
 use Exception;
 
 class FileService
@@ -102,7 +101,7 @@ class FileService
     }
 
     /**
-     * Отримати статистику по файлах і лінкам
+     * Отримати статистику по файлах і посиланнях
      *
      * @return StatisticsDTO
      */
@@ -142,7 +141,7 @@ class FileService
 
 
     /**
-     * Генерація одноразових лінків
+     * Генерація одноразових посилань
      *
      * @param int $fileId
      * @param int $count
@@ -174,7 +173,7 @@ class FileService
     }
 
     /**
-     * Отримати файл за одноразовим лінком
+     * Отримати файл за одноразовим посиланням
      *
      * @param string $token
      * @return string
