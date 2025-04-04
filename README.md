@@ -35,7 +35,7 @@
 
    ```bash
    git clone https://github.com/Doskochds/doskochpraktika
-   cd doskochpraktika/prpoj
+   cd doskochpraktika
 
     Запустіть Docker контейнер
 
