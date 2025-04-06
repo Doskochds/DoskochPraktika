@@ -19,7 +19,8 @@ class OneTimeLinkController extends Controller
     public function generate($fileId, Request $request)
     {
         try {
-            $count = $request->input('count', 1);
+            $fileId = (int) $fileId;
+            $count = (int) $request->input('count', 1);
             $links = $this->fileService->generateOneTimeLinks($fileId, $count);
             return response()->json([
                 'links' => array_map(function (OneTimeLinkDTO $link) {
@@ -34,6 +35,8 @@ class OneTimeLinkController extends Controller
             return response()->json(['error' => $e->getMessage()], 400);
         }
     }
+
+
 
     public function show($fileId)
     {

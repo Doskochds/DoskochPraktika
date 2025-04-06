@@ -43,11 +43,12 @@ class FileController extends Controller
         return view('files.index', compact('files'));
     }
 
-    public function show($id)
+    public function show(string $id)
     {
-        $file = $this->fileService->getFile($id);
+        $file = $this->fileService->getFile((int) $id);
         return view('files.show', compact('file'));
     }
+
 
     public function destroy($id)
     {
@@ -57,6 +58,7 @@ class FileController extends Controller
 
     public function view($id)
     {
+        $id = (int) $id;
         $file = $this->fileService->getFileForView($id);
         return response()->file($file);
     }
