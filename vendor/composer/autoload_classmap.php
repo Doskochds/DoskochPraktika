@@ -7,9 +7,14 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'App\\Console\\Commands\\DeleteExpiredFiles' => $baseDir . '/app/Console/Commands/DeleteExpiredFiles.php',
+    'App\\DTO\\CurrentUserDTO' => $baseDir . '/app/DTO/CurrentUserDTO.php',
     'App\\DTO\\FileDTO' => $baseDir . '/app/DTO/FileDTO.php',
     'App\\DTO\\OneTimeLinkDTO' => $baseDir . '/app/DTO/OneTimeLinkDTO.php',
+    'App\\DTO\\PasswordResetDTO' => $baseDir . '/app/DTO/PasswordResetDTO.php',
+    'App\\DTO\\PasswordUpdateDTO' => $baseDir . '/app/DTO/PasswordUpdateDTO.php',
     'App\\DTO\\StatisticsDTO' => $baseDir . '/app/DTO/StatisticsDTO.php',
+    'App\\DTO\\UserLoginDTO' => $baseDir . '/app/DTO/UserLoginDTO.php',
+    'App\\DTO\\UserRegistrationDTO' => $baseDir . '/app/DTO/UserRegistrationDTO.php',
     'App\\Http\\Controllers\\ApiAuthController' => $baseDir . '/app/Http/Controllers/ApiAuthController.php',
     'App\\Http\\Controllers\\ApiFileController' => $baseDir . '/app/Http/Controllers/ApiFileController.php',
     'App\\Http\\Controllers\\ApiOneTimeLinkController' => $baseDir . '/app/Http/Controllers/ApiOneTimeLinkController.php',

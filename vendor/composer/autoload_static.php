@@ -600,9 +600,14 @@ class ComposerStaticInitcc33065e1f32d0abfc47014117e2a92f
 
     public static $classMap = array (
         'App\\Console\\Commands\\DeleteExpiredFiles' => __DIR__ . '/../..' . '/app/Console/Commands/DeleteExpiredFiles.php',
+        'App\\DTO\\CurrentUserDTO' => __DIR__ . '/../..' . '/app/DTO/CurrentUserDTO.php',
         'App\\DTO\\FileDTO' => __DIR__ . '/../..' . '/app/DTO/FileDTO.php',
         'App\\DTO\\OneTimeLinkDTO' => __DIR__ . '/../..' . '/app/DTO/OneTimeLinkDTO.php',
+        'App\\DTO\\PasswordResetDTO' => __DIR__ . '/../..' . '/app/DTO/PasswordResetDTO.php',
+        'App\\DTO\\PasswordUpdateDTO' => __DIR__ . '/../..' . '/app/DTO/PasswordUpdateDTO.php',
         'App\\DTO\\StatisticsDTO' => __DIR__ . '/../..' . '/app/DTO/StatisticsDTO.php',
+        'App\\DTO\\UserLoginDTO' => __DIR__ . '/../..' . '/app/DTO/UserLoginDTO.php',
+        'App\\DTO\\UserRegistrationDTO' => __DIR__ . '/../..' . '/app/DTO/UserRegistrationDTO.php',
         'App\\Http\\Controllers\\ApiAuthController' => __DIR__ . '/../..' . '/app/Http/Controllers/ApiAuthController.php',
         'App\\Http\\Controllers\\ApiFileController' => __DIR__ . '/../..' . '/app/Http/Controllers/ApiFileController.php',
         'App\\Http\\Controllers\\ApiOneTimeLinkController' => __DIR__ . '/../..' . '/app/Http/Controllers/ApiOneTimeLinkController.php',
