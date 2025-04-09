@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class AuthService
 {
@@ -132,7 +133,7 @@ class AuthService
         return redirect('/');
     }
 
-    public function register(UserRegistrationDTO $dto): RedirectResponse
+    public function register(UserRegistrationDTO $dto): RedirectResponse|JsonResponse
     {
         $user = User::create(
             [
@@ -145,6 +146,9 @@ class AuthService
         event(new Registered($user));
 
         Auth::login($user);
+        if (request()->wantsJson()) {
+            return response()->json(['message' => 'Register successful', 'user' => $user]);
+        }
         return redirect(route('dashboard', absolute: false));
     }
 
