@@ -35,4 +35,7 @@ Route::middleware([EnsureFrontendRequestsAreStateful::class, 'auth:sanctum'])->g
 
 
     Route::post('/logout', [ApiAuthController::class, 'logout'])->name('api.logout');
+    Route::get('/user', function (\Illuminate\Http\Request $request) {
+        return $request->user();
+    });
 });
