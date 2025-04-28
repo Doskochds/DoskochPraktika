@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 namespace App\Services;
 
 use App\DTO\PasswordResetDTO;
@@ -56,11 +57,9 @@ class AuthService
      */
     public function updatePassword(User $user, PasswordUpdateDTO $dto): RedirectResponse
     {
-        $user->update(
-            [
-                'password' => Hash::make($dto->password),
-            ]
-        );
+        $user->update([
+            'password' => Hash::make($dto->password),
+        ]);
         return back()->with('status', 'password-updated');
     }
 
@@ -87,17 +86,13 @@ class AuthService
 
     public function confirmPassword(User $user, string $password): RedirectResponse
     {
-        if (! Auth::guard('web')->validate(
-            [
-                'email' => $user->email,
-                'password' => $password,
-            ]
-        )) {
-            throw ValidationException::withMessages(
-                [
-                    'password' => __('auth.password'),
-                ]
-            );
+        if (!Auth::guard('web')->validate([
+            'email' => $user->email,
+            'password' => $password,
+        ])) {
+            throw ValidationException::withMessages([
+                'password' => __('auth.password'),
+            ]);
         }
         session()->put('auth.password_confirmed_at', time());
         return redirect()->intended(route('dashboard', absolute: false));
@@ -120,46 +115,68 @@ class AuthService
             ])->withInput();
         }
 
-        session()->invalidate();
-        session()->regenerateToken();
-        Auth::login($user, true);
+        // Видалити старі токени, якщо треба:
+        $user->tokens()->delete();
+
+        // Створити новий токен
+        $token = $user->createToken('auth_token')->plainTextToken;
 
         if (request()->wantsJson()) {
             return response()->json([
                 'message' => 'Login successful',
                 'user' => $user,
+                'token' => $token,
+                'token_type' => 'Bearer',
             ]);
         }
 
+        Auth::login($user, true);
         return redirect()->intended(route('dashboard', absolute: false));
     }
 
-
-
-    public function logout(\Illuminate\Http\Request $request): RedirectResponse
+    public function logout(\Illuminate\Http\Request $request): JsonResponse|RedirectResponse
     {
+        $user = $request->user();
+
+        if ($user) {
+            // Видалити всі токени користувача
+            $user->tokens()->delete();
+        }
+
         Auth::guard('web')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+
+        if ($request->wantsJson()) {
+            return response()->json(['message' => 'Logged out successfully']);
+        }
+
         return redirect('/');
     }
 
     public function register(UserRegistrationDTO $dto): RedirectResponse|JsonResponse
     {
-        $user = User::create(
-            [
-                'name' => $dto->name,
-                'email' => $dto->email,
-                'password' => Hash::make($dto->password),
-            ]
-        );
+        $user = User::create([
+            'name' => $dto->name,
+            'email' => $dto->email,
+            'password' => Hash::make($dto->password),
+        ]);
 
         event(new Registered($user));
 
-        Auth::login($user);
+        // Створити токен відразу після реєстрації
+        $token = $user->createToken('auth_token')->plainTextToken;
+
         if (request()->wantsJson()) {
-            return response()->json(['message' => 'Register successful', 'user' => $user]);
+            return response()->json([
+                'message' => 'Register successful',
+                'user' => $user,
+                'token' => $token,
+                'token_type' => 'Bearer',
+            ]);
         }
+
+        Auth::login($user);
         return redirect(route('dashboard', absolute: false));
     }
 
@@ -172,4 +189,3 @@ class AuthService
         return response()->json(['user' => $user]);
     }
 }
-
