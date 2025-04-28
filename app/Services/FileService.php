@@ -25,13 +25,15 @@ class FileService
     public function uploadFile(FileDTO $fileDTO): File
     {
         $filePath = $fileDTO->file;
+
         return File::create([
             'user_id' => Auth::id(),
             'file_name' => $filePath,
             'comment' => $fileDTO->comment,
-            'delete_at' => $fileDTO->deleteAt,
+            'delete_at' => $fileDTO->deleteAt ? Carbon::parse($fileDTO->deleteAt) : null,
         ]);
     }
+
 
     /**
      * Отримати всі файли користувача
