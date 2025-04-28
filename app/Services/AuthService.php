@@ -106,23 +106,34 @@ class AuthService
     /**
      * Handle authentication actions.
      */
-    public function login(UserLoginDTO $dto): RedirectResponse|JsonResponse
+    public function login(UserLoginDTO $dto): JsonResponse|RedirectResponse
     {
         $user = User::where('email', $dto->email)->first();
+
         if (!$user || !Hash::check($dto->password, $user->password)) {
             if (request()->wantsJson()) {
                 return response()->json(['message' => 'Invalid credentials'], 401);
             }
-            return redirect()->route('login')->withErrors(['email' => 'Невірні облікові дані.']);
+
+            return back()->withErrors([
+                'email' => __('auth.failed'),
+            ])->withInput();
         }
+
         session()->invalidate();
         session()->regenerateToken();
         Auth::login($user, true);
+
         if (request()->wantsJson()) {
-            return response()->json(['message' => 'Login successful', 'user' => $user]);
+            return response()->json([
+                'message' => 'Login successful',
+                'user' => $user,
+            ]);
         }
-        return redirect()->route('dashboard');
+
+        return redirect()->intended(route('dashboard', absolute: false));
     }
+
 
 
     public function logout(\Illuminate\Http\Request $request): RedirectResponse

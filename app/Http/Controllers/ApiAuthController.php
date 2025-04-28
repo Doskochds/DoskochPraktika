@@ -56,5 +56,15 @@ class ApiAuthController extends Controller
         $dto = new CurrentUserDTO($request->user()->email);
         return $this->authService->user($dto);
     }
+    /**
+     * Для того аби токен працював в фронті.
+     */
+    public function loginForm(Request $request)
+    {
+        return response()->json([
+            'csrf_token' => csrf_token()
+        ]);
+    }
+
 }
 
