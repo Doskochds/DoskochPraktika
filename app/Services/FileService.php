@@ -24,7 +24,8 @@ class FileService
      */
     public function uploadFile(FileDTO $fileDTO): File
     {
-        $filePath = $fileDTO->file;
+        $filePath = $fileDTO->file->store('uploads', 'public');
+
 
         return File::create([
             'user_id' => Auth::id(),

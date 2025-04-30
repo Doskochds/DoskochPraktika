@@ -23,7 +23,7 @@ class ApiFileController extends Controller
             'delete_at' => 'nullable|date|after:today',
         ]);
         $fileDTO = new FileDTO(
-            $validated['file']->getClientOriginalName(),
+            $validated['file'],
             $validated['comment'] ?? null,
             $validated['delete_at'] ?? null
         );
@@ -35,21 +35,24 @@ class ApiFileController extends Controller
         $files = $this->fileService->getUserFiles();
         return response()->json(['files' => $files]);
     }
-    public function show($id): JsonResponse
+    public function show(int $id): JsonResponse
     {
         $file = $this->fileService->getFile($id);
         return response()->json(['file' => $file]);
     }
-    public function destroy($id): JsonResponse
+
+    public function destroy(int $id): JsonResponse
     {
         $this->fileService->deleteFile($id);
         return response()->json(['message' => 'Файл успішно видалено']);
     }
-    public function view($id)
+
+    public function view(int $id)
     {
         $file = $this->fileService->getFileForView($id);
         return response()->file($file);
     }
+
     public function statistics(): JsonResponse
     {
         $report = $this->fileService->getStatistics();

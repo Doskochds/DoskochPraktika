@@ -29,7 +29,7 @@ class FileController extends Controller
             'delete_at' => 'nullable|date|after:today',
         ]);
         $fileDTO = new FileDTO(
-            $request->file('file')->store('files', 'public'), // шлях до файлу
+            $request->file('file'),
             $request->input('comment'),
             $request->input('delete_at')
         );
@@ -52,9 +52,10 @@ class FileController extends Controller
 
     public function destroy($id)
     {
-        $this->fileService->deleteFile($id);
+        $this->fileService->deleteFile((int) $id);
         return redirect()->route('files.index')->with('success', 'Файл успішно видалено');
     }
+
 
     public function view($id)
     {
