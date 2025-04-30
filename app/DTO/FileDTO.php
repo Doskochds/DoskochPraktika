@@ -7,7 +7,6 @@ class FileDTO
     public UploadedFile $file;
     public ?string $comment;
     public ?string $deleteAt;
-
     public function __construct(UploadedFile $file, ?string $comment, ?string $deleteAt)
     {
         $this->file = $file;

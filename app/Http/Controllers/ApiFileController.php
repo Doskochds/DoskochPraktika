@@ -35,27 +35,29 @@ class ApiFileController extends Controller
         $files = $this->fileService->getUserFiles();
         return response()->json(['files' => $files]);
     }
-    public function show(int $id): JsonResponse
+    public function show($id): JsonResponse
     {
+        $id = (int) $id;
         $file = $this->fileService->getFile($id);
         return response()->json(['file' => $file]);
     }
-
     public function destroy(int $id): JsonResponse
     {
         $this->fileService->deleteFile($id);
         return response()->json(['message' => 'Файл успішно видалено']);
     }
-
     public function view(int $id)
     {
         $file = $this->fileService->getFileForView($id);
         return response()->file($file);
     }
-
     public function statistics(): JsonResponse
     {
-        $report = $this->fileService->getStatistics();
-        return response()->json(['statistics' => $report]);
+        try {
+            $statistics = $this->fileService->getStatistics();
+            return response()->json(['statistics' => $statistics]);
+        } catch (Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
     }
 }

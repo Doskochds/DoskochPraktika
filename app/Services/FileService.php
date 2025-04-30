@@ -15,8 +15,7 @@ use Illuminate\Support\Str;
 use Exception;
 
 class FileService
-{
-    /**
+{    /**
      * Завантажити файл і зберегти його в базі
      *
      * @param FileDTO $fileDTO
@@ -34,8 +33,6 @@ class FileService
             'delete_at' => $fileDTO->deleteAt ? Carbon::parse($fileDTO->deleteAt) : null,
         ]);
     }
-
-
     /**
      * Отримати всі файли користувача
      *
@@ -47,7 +44,6 @@ class FileService
             ->orderBy('created_at', 'desc')
             ->get();
     }
-
     /**
      * Отримати файл по ID
      *
@@ -58,7 +54,6 @@ class FileService
     {
         return File::where('id', $id)->where('user_id', Auth::id())->firstOrFail();
     }
-
     /**
      * Видалити файл по ID
      *
@@ -72,7 +67,6 @@ class FileService
         $file->oneTimeLinks()->delete();
         $file->delete();
     }
-
     /**
      * Отримати файл для перегляду по ID
      *
@@ -85,7 +79,6 @@ class FileService
         $file->increment('views');
         return storage_path("app/public/{$file->file_name}");
     }
-
     /**
      * Видалити прострочені файли
      *
@@ -102,7 +95,24 @@ class FileService
             $file->delete();
         }
     }
+    /**
+     * Отримати всі одноразові посилання для файлу
+     *
+     * @param int $fileId
+     * @return OneTimeLinkDTO[]
+     */
+    public function getOneTimeLinksByFileId(int $fileId): array
+    {
+        $links = OneTimeLink::where('file_id', $fileId)->get();
 
+        return $links->map(function ($link) {
+            return new OneTimeLinkDTO(
+                $link->token,
+                route('file.views.one', ['token' => $link->token]),
+                $link->created_at->toDateTimeString()
+            );
+        })->toArray();
+    }
     /**
      * Отримати статистику по файлах і посиланнях
      *
@@ -110,21 +120,22 @@ class FileService
      */
     public function getStatistics(): StatisticsDTO
     {
+        $userId = (int) Auth::id();
         $totalLinks = OneTimeLink::withTrashed()->count();
         $unusedLinks = OneTimeLink::whereNull('used_at')->count();
         $userLinks = OneTimeLink::whereHas(
-            'file', function ($query) {
-            $query->where('user_id', Auth::id());
+            'file', function ($query) use ($userId) {
+            $query->where('user_id', $userId);
         }
         )->withTrashed()->count();
         $userUnusedLinks = OneTimeLink::whereHas(
-            'file', function ($query) {
-            $query->where('user_id', Auth::id());
+            'file', function ($query) use ($userId) {
+            $query->where('user_id', $userId);
         }
         )->whereNull('used_at')->count();
         $userUsedLinks = $userLinks - $userUnusedLinks;
         $totalViews = (int) File::sum('views');
-        $userTotalViews = (int) File::where('user_id', Auth::id())->sum('views');
+        $userTotalViews = (int) File::where('user_id', $userId)->sum('views');
         return new StatisticsDTO(
             File::count(),
             File::onlyTrashed()->count(),
@@ -133,16 +144,14 @@ class FileService
             $unusedLinks,
             $totalViews,
             File::withTrashed()->withCount('oneTimeLinks')->get()->toArray(),
-            File::where('user_id', Auth::id())->count(),
-            File::where('user_id', Auth::id())->onlyTrashed()->count(),
+            File::where('user_id', $userId)->count(),
+            File::where('user_id', $userId)->onlyTrashed()->count(),
             $userLinks,
             $userUsedLinks,
             $userUnusedLinks,
             $userTotalViews
         );
     }
-
-
     /**
      * Генерація одноразових посилань
      *
@@ -165,7 +174,6 @@ class FileService
                     'created_at' => Carbon::now(),
                 ]
             );
-
             $links[] = new OneTimeLinkDTO(
                 $token,
                 route('file.views.one', ['token' => $token]),
@@ -174,7 +182,6 @@ class FileService
         }
         return $links;
     }
-
     /**
      * Отримати файл за одноразовим посиланням
      *
@@ -192,7 +199,6 @@ class FileService
         $link->update(['used_at' => now()]);
         return storage_path("app/public/{$file->file_name}");
     }
-
     /**
      * Видалити одноразовий лінк
      *

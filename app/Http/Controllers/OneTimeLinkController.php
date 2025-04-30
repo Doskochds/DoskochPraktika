@@ -10,12 +10,10 @@ use Illuminate\Http\Request;
 class OneTimeLinkController extends Controller
 {
     protected FileService $fileService;
-
     public function __construct(FileService $fileService)
     {
         $this->fileService = $fileService;
     }
-
     public function generate($fileId, Request $request)
     {
         try {
@@ -35,9 +33,6 @@ class OneTimeLinkController extends Controller
             return response()->json(['error' => $e->getMessage()], 400);
         }
     }
-
-
-
     public function show($fileId)
     {
         try {
@@ -47,7 +42,6 @@ class OneTimeLinkController extends Controller
             return response()->json(['error' => $e->getMessage()], 400);
         }
     }
-
     public function view($token)
     {
         try {
@@ -58,7 +52,6 @@ class OneTimeLinkController extends Controller
             return response()->json(['error' => $e->getMessage()], 400);
         }
     }
-
     public function deleteLink($token)
     {
         try {

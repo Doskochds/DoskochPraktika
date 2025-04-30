@@ -15,12 +15,10 @@ class FileController extends Controller
     {
         $this->fileService = $fileService;
     }
-
     public function create()
     {
         return view('files.create');
     }
-
     public function store(Request $request): \Illuminate\Http\RedirectResponse
     {
         $request->validate([
@@ -36,34 +34,27 @@ class FileController extends Controller
         $this->fileService->uploadFile($fileDTO);
         return redirect()->route('files.index');
     }
-
     public function index()
     {
         $files = $this->fileService->getUserFiles();
         return view('files.index', compact('files'));
     }
-
     public function show(string $id)
     {
         $file = $this->fileService->getFile((int) $id);
         return view('files.show', compact('file'));
     }
-
-
     public function destroy($id)
     {
         $this->fileService->deleteFile((int) $id);
         return redirect()->route('files.index')->with('success', 'Файл успішно видалено');
     }
-
-
     public function view($id)
     {
         $id = (int) $id;
         $file = $this->fileService->getFileForView($id);
         return response()->file($file);
     }
-
     public function statistics()
     {
         $report = $this->fileService->getStatistics();
